@@ -51,13 +51,15 @@ async def login_google(
     Verify Google access token and return a JWT access token
     """
     try:
-        # Verify the ID token
-        idinfo = id_token.verify_oauth2_token(
-            token_data.id_token, 
-            google_requests.Request(), 
-            settings.GOOGLE_CLIENT_ID
+        # Fetch user info from Google using the access token
+        user_info_res = requests.get(
+            f"https://www.googleapis.com/oauth2/v3/userinfo?access_token={token_data.id_token}"
         )
-
+        
+        if user_info_res.status_code != 200:
+            raise HTTPException(status_code=400, detail="Invalid Google token")
+            
+        idinfo = user_info_res.json()
         email = idinfo['email']
         full_name = idinfo.get('name', '')
         
