@@ -100,7 +100,9 @@ async def login_google(
             "token_type": "bearer",
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Google Login Error: {e}")
         if isinstance(e, HTTPException):
             raise e
-        raise HTTPException(status_code=500, detail="Internal server error during Google login")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

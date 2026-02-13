@@ -15,6 +15,21 @@ app = FastAPI(
     version=settings.VERSION,
 )
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting up...")
+    try:
+        from app.db.session import get_db
+        from sqlalchemy import text
+        # We need to get a session to test
+        async for session in get_db():
+            await session.execute(text("SELECT 1"))
+            logger.info("Database connection successful!")
+            break
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
+
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
